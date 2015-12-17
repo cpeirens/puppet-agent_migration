@@ -1,10 +1,19 @@
 module MCollective
   module Agent
     class Migrate<RPC::Agent
-      require 'date'
-
-      require 'logger'
-      require 'fileutils'
+      # require 'date'
+      #
+      # require 'logger'
+      # require 'fileutils'
+      #
+      # $working_dir = '/var/log/mcollective-migrator'
+      # $log_file = "#{working_dir}/migrate.log"
+      #
+      # FileUtils.mkdir_p $working_dir
+      #
+      # file = File.open($log_file, File::WRONLY | File::APPEND | File::CREAT)
+      # $log = Logger.new(file)
+      # $log.level = Logger::DEBUG
 
       action 'agent_from_3_to_4' do
         to_fqdn = request[:to_fqdn]
@@ -18,19 +27,11 @@ module MCollective
         run_migration(to_fqdn, to_ip, false)
       end
 
-      $working_dir = '/var/log/mcollective-migrator'
-      $log_file = "#{working_dir}/migrate.log"
-
-      FileUtils.mkdir_p $working_dir
-
-      file = File.open($log_file, File::WRONLY | File::APPEND | File::CREAT)
-      $log = Logger.new(file)
-      $log.level = Logger::DEBUG
-
       private
 
       def log(msg)
-        $log.info(msg)
+        # $log.info(msg)
+        Log.info(msg)
       end
 
 
@@ -61,7 +62,8 @@ module MCollective
         err = ""
         success=true
         commands.each { |cmd|
-          status = run(cmd, :stdout => out, :stderr => err, :cwd => "/tmp", :chomp => true)
+          # status = run(cmd, :stdout => out, :stderr => err, :cwd => "/tmp", :chomp => true)
+          status = `#{cmd}`
           log("++++ stdout for: CMD: #{cmd}  ")
           log(out)
           log("---- end command #{cmd}")
