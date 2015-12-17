@@ -14,28 +14,28 @@ module MCollective
         run_migration(to_fqdn, to_ip, false)
       end
 
-      private
-
-      def execute(cmd)
-        Log.debug("Migrate will now execute: #{cmd}")
-
-        process = IO.popen("#{cmd}") do |io|
-          while line = io.gets
-            line.chomp!
-            # log_debug(line)
-          end
-          io.close
-          $result = $?.to_i == 0
-          raise "Command #{cmd} failed execution" unless $result
-        end
-
-      rescue Exception => e
-        # log_error e
-        # log_fatal("Execution FAILED for: #{cmd}")
-        return false
-      else
-        return true
-      end
+      # private
+      #
+      # def execute(cmd)
+      #   Log.info("Migrate will now execute: #{cmd}")
+      #
+      #   process = IO.popen("#{cmd}") do |io|
+      #     while line = io.gets
+      #       line.chomp!
+      #       # log_debug(line)
+      #     end
+      #     io.close
+      #     $result = $?.to_i == 0
+      #     raise "Command #{cmd} failed execution" unless $result
+      #   end
+      #
+      # rescue Exception => e
+      #   # log_error e
+      #   # log_fatal("Execution FAILED for: #{cmd}")
+      #   return false
+      # else
+      #   return true
+      # end
 
       def run_migration(to_fqdn, to_ip, reinstall_from_new_master=false)
 
@@ -60,12 +60,12 @@ module MCollective
         success=true
         commands.each { |cmd|
           status = run(cmd, :stdout => out, :stderr => err, :cwd => "/tmp", :chomp => true)
-          Log.debug("CMD: #{cmd} had stdout: ")
-          Log.debug(out)
-          Log.debug("---- end command #{cmd}")
-          Log.debug("CMD: #{cmd} had stderr: ")
-          Log.debug(out)
-          Log.debug("---- end command #{cmd}")
+          Log.info("CMD: #{cmd} had stdout: ")
+          Log.info(out)
+          Log.info("---- end command #{cmd}")
+          Log.info("CMD: #{cmd} had stderr: ")
+          Log.info(out)
+          Log.info("---- end command #{cmd}")
           reply.fail! "Migration failed running command: #{cmd} with error: #{err} Please intervene manually." unless status
           success=false unless status
         }
