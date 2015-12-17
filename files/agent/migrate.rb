@@ -1,11 +1,10 @@
-require 'date'
-
-require 'logger'
-require 'fileutils'
-
 module MCollective
   module Agent
     class Migrate<RPC::Agent
+      require 'date'
+
+      require 'logger'
+      require 'fileutils'
 
       action 'agent_from_3_to_4' do
         to_fqdn = request[:to_fqdn]
@@ -38,6 +37,8 @@ module MCollective
       def run_migration(to_fqdn, to_ip, reinstall_from_new_master=false)
 
         commands = []
+        log("Reinstalling puppet from a new master: #{to_fqdn}") if reinstall_from_new_master
+        log("This node is moving to a new master: #{to_fqdn}") unless reinstall_from_new_master
 
         commands << "[ -f /etc/init.d/pe-puppet ] && puppet resource service pe-puppet ensure=stopped"
         commands << "[ -f /etc/init.d/puppet ] &&  puppet resource service puppet ensure=stopped"
