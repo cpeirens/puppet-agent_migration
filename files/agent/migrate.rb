@@ -6,8 +6,8 @@ module MCollective
       # require 'logger'
       # require 'fileutils'
       #
-      # $working_dir = '/var/log/mcollective-migrator'
-      # $log_file = "#{working_dir}/migrate.log"
+      $working_dir = '/var/log'
+      $log_file = "#{working_dir}/mcollective-migrator-migrate.log"
       #
       # FileUtils.mkdir_p $working_dir
       #
@@ -31,7 +31,8 @@ module MCollective
 
       def log(msg)
         # $log.info(msg)
-        Log.info(msg)
+        # Log.info(msg)
+        `echo 'msg >> #{$log_file}'`
       end
 
 
