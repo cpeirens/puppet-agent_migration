@@ -1,3 +1,8 @@
+require 'date'
+
+require 'logger'
+require 'fileutils'
+
 module MCollective
   module Agent
     class Migrate<RPC::Agent
@@ -14,28 +19,21 @@ module MCollective
         run_migration(to_fqdn, to_ip, false)
       end
 
-      # private
-      #
-      # def execute(cmd)
-      #   Log.info("Migrate will now execute: #{cmd}")
-      #
-      #   process = IO.popen("#{cmd}") do |io|
-      #     while line = io.gets
-      #       line.chomp!
-      #       # log_debug(line)
-      #     end
-      #     io.close
-      #     $result = $?.to_i == 0
-      #     raise "Command #{cmd} failed execution" unless $result
-      #   end
-      #
-      # rescue Exception => e
-      #   # log_error e
-      #   # log_fatal("Execution FAILED for: #{cmd}")
-      #   return false
-      # else
-      #   return true
-      # end
+      $working_dir = '/var/log/mcollective-migrator'
+      $log_file = "#{working_dir}/migrate.log"
+
+      FileUtils.mkdir_p $working_dir
+
+      file = File.open($log_file, File::WRONLY | File::APPEND | File::CREAT)
+      $log = Logger.new(file)
+      $log.level = Logger::DEBUG
+
+      private
+
+      def log(msg)
+        $log.info(msg)
+      end
+
 
       def run_migration(to_fqdn, to_ip, reinstall_from_new_master=false)
 
@@ -63,12 +61,12 @@ module MCollective
         success=true
         commands.each { |cmd|
           status = run(cmd, :stdout => out, :stderr => err, :cwd => "/tmp", :chomp => true)
-          Log.info("CMD: #{cmd} had stdout: ")
-          Log.info(out)
-          Log.info("---- end command #{cmd}")
-          Log.info("CMD: #{cmd} had stderr: ")
-          Log.info(out)
-          Log.info("---- end command #{cmd}")
+          log("++++ stdout for: CMD: #{cmd}  ")
+          log(out)
+          log("---- end command #{cmd}")
+          log("++++ stderr for: CMD: #{cmd} ")
+          log(out)
+          log("---- end command #{cmd}")
           reply.fail! "Migration failed running command: #{cmd} with error: #{err} Please intervene manually." unless status
           success=false unless status
         }
