@@ -47,12 +47,12 @@ module MCollective
         if reinstall_from_new_master then
           commands << "/usr/bin/wget --no-check-certificate https://prd-artifactory.sjrb.ad:8443/artifactory/shaw-private-core-devops-ext-release/com/puppetlabs/puppet-enterprise/2015.2.3/puppet-enterprise-2015.2.3-el-6-x86_64.tar.gz"
           commands << "/bin/tar -xvf puppet-enterprise-2015.2.3-el-6-x86_64.tar.gz"
-          commands << "./puppet-enterprise-2015.2.3-el-6-x86_64/puppet-enterprise-uninstaller -pdy"
+          commands << "/bin/bash puppet-enterprise-2015.2.3-el-6-x86_64/puppet-enterprise-uninstaller -pdy"
           commands << "/bin/rm -rf puppet-enterprise-*"
         end
         commands << "/usr/bin/curl -o install_puppet.sh -k https://devcorepptl918.matrix.sjrb.ad:8140/packages/current/install.bash"
         commands << "/bin/chmod +x install_puppet.sh"
-        commands << "./install_puppet.sh"
+        commands << "/bin/bash install_puppet.sh"
         commands << "/bin/rm -rf /etc/yum.repos.d/pe_repo.repo"
         commands << "/bin/rm -rf install_puppet.sh"
         commands << "[ -f /etc/init.d/pe-puppet ] && puppet resource service pe-puppet ensure=running"
