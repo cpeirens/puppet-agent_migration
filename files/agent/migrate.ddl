@@ -6,7 +6,7 @@ metadata :name        => "migrate",
 :url                  => "http://puppetlabs.com",
 :timeout              => 120
 
-action "migrate_3_to_4", :description => "Uninstalls puppet, reinstalls from designated master curl script" do
+action "agent_from_3_to_4", :description => "Uninstalls puppet, reinstalls from designated master curl script" do
   input :to_fqdn,
         :prompt      => "new master fqdn",
         :description => "Master FQDN to direct the agent to",
@@ -25,14 +25,14 @@ action "migrate_3_to_4", :description => "Uninstalls puppet, reinstalls from des
         :timeout     => 120,
         :type        => :string
 
-  output :complete,
-         :description => "Whether migration was successful",
-         :display_as  => "Migrated?",
+  output :msg,
+         :description => "error output if it failed",
+         :display_as  => "errors or messages from client",
          :default     => "unknown"
 end
 
 
-action "migrate", :description => "Leaves puppet version, changes server and /etc/hosts for new master" do
+action "agent", :description => "Leaves puppet version, changes server and /etc/hosts for new master" do
   input :to_fqdn,
         :prompt      => "new master fqdn",
         :description => "Master FQDN to direct the agent to",
@@ -51,8 +51,8 @@ action "migrate", :description => "Leaves puppet version, changes server and /et
         :timeout     => 120,
         :type        => :string
 
-  output :complete,
-         :description => "Was migration successful",
-         :display_as  => "Migrated?",
-         :default     => "unknown"
+  output :msg,
+        :description => "error output if it failed",
+        :display_as  => "errors or messages from client",
+        :default     => "unknown"
 end

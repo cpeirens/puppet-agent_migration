@@ -2,13 +2,13 @@ module MCollective
   module Agent
     class Migrate<RPC::Agent
 
-      action 'migrate_3_to_4' do
+      action 'agent_from_3_to_4' do
         to_fqdn = request[:to_fqdn]
         to_ip = request[:to_ip]
         run_migration(to_fqdn, to_ip, true)
       end
 
-      action 'migrate' do
+      action 'agent' do
         to_fqdn = request[:to_fqdn]
         to_ip = request[:to_ip]
         run_migration(to_fqdn, to_ip, false)
@@ -17,6 +17,7 @@ module MCollective
       private
 
       def execute(cmd)
+        Log.debug("Migrate will now execute: #{cmd}")
 
         process = IO.popen("#{cmd}") do |io|
           while line = io.gets
@@ -37,33 +38,39 @@ module MCollective
       end
 
       def run_migration(to_fqdn, to_ip, reinstall_from_new_master=false)
-        reinstall_script=''
 
+        commands = []
+
+        commands << "[ -f /etc/init.d/pe-puppet ] && puppet resource service pe-puppet ensure=stopped"
+        commands << "[ -f /etc/init.d/puppet ] &&  puppet resource service puppet ensure=stopped"
+        commands << "sed -i '/puppet/c\\#{to_ip} puppet #{to_fqdn}' /etc/hosts"
         if reinstall_from_new_master then
-          reinstall_script = <<REINSTALL
-          /usr/bin/wget --no-check-certificate https://prd-artifactory.sjrb.ad:8443/artifactory/shaw-private-core-devops-ext-release/com/puppetlabs/puppet-enterprise/2015.2.3/puppet-enterprise-2015.2.3-el-6-x86_64.tar.gz
-          /bin/tar -xvf puppet-enterprise-2015.2.3-el-6-x86_64.tar.gz
-          cd puppet-enterprise-2015.2.3-el-6-x86_64
-          ./puppet-enterprise-uninstaller -pdy
-          /bin/rm -rf /root/puppet-enterprise-*
-REINSTALL
+          commands << "/usr/bin/wget --no-check-certificate https://prd-artifactory.sjrb.ad:8443/artifactory/shaw-private-core-devops-ext-release/com/puppetlabs/puppet-enterprise/2015.2.3/puppet-enterprise-2015.2.3-el-6-x86_64.tar.gz"
+          commands << "/bin/tar -xvf puppet-enterprise-2015.2.3-el-6-x86_64.tar.gz"
+          commands << "cd puppet-enterprise-2015.2.3-el-6-x86_64; ./puppet-enterprise-uninstaller -pdy"
+          commands << "/bin/rm -rf puppet-enterprise-*"
         end
+        commands << "curl -k https://devcorepptl918.matrix.sjrb.ad:8140/packages/current/install.bash | sudo bash"
+        commands << "rm -rf /etc/yum.repos.d/pe_repo.repo"
+        commands << "[ -f /etc/init.d/pe-puppet ] && puppet resource service pe-puppet ensure=running"
+        commands << "[ -f /etc/init.d/puppet ] &&  puppet resource service puppet ensure=running"
 
-        script = <<OEF
-        cd /root
-        /etc/init.d/pe-puppet stop
-        sed -i '/puppet/c\\#{to_ip} puppet #{to_fqdn}' /etc/hosts
-        #{reinstall_script}
-        curl -k https://devcorepptl918.matrix.sjrb.ad:8140/packages/current/install.bash | sudo bash
-        rm -rf /etc/yum.repos.d/pe_repo.repo
-        cd /root
-        /etc/init.d/puppet start
-OEF
+        out = ""
+        err = ""
+        success=true
+        commands.each { |cmd|
+          status = run(cmd, :stdout => out, :stderr => err, :cwd => "/tmp", :chomp => true)
+          Log.debug("CMD: #{cmd} had stdout: ")
+          Log.debug(out)
+          Log.debug("---- end command #{cmd}")
+          Log.debug("CMD: #{cmd} had stderr: ")
+          Log.debug(out)
+          Log.debug("---- end command #{cmd}")
+          reply.fail! "Migration failed running command: #{cmd} with error: #{err} Please intervene manually." unless status
+          success=false unless status
+        }
 
-        result =  execute(script)
-
-        reply[:complete] = result
-        reply.fail "Migration failed. Please intervene manually." unless result
+        reply[:status] = "Did migration succeed:  #{result}"
       end
 
     end
