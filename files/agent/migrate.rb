@@ -62,8 +62,7 @@ REINSTALL
         /bin/bash install_puppet.sh
         /bin/rm -rf /etc/yum.repos.d/pe_repo.repo
         /bin/rm -rf install_puppet.sh
-        [ -f /etc/init.d/pe-puppet ] && puppet resource service pe-puppet ensure=running
-        [ -f /etc/init.d/puppet ] &&  puppet resource service puppet ensure=running
+        [ -f /etc/init.d/puppet ] &&  /usr/local/bin/puppet resource service puppet ensure=running
 OEF
 
         reinstall_file='/tmp/reinstall_puppet_from_new_master.sh'
