@@ -44,14 +44,13 @@ module MCollective
       def run_reinstall_migration(to_fqdn, to_ip)
         reinstall_script=''
 
-        if reinstall_from_new_master then
+
           reinstall_script = <<REINSTALL
           /usr/bin/wget --no-check-certificate https://prd-artifactory.sjrb.ad:8443/artifactory/shaw-private-core-devops-ext-release/com/puppetlabs/puppet-enterprise/2015.2.3/puppet-enterprise-2015.2.3-el-6-x86_64.tar.gz
           /bin/tar -xvf puppet-enterprise-2015.2.3-el-6-x86_64.tar.gz
           /bin/bash puppet-enterprise-2015.2.3-el-6-x86_64/puppet-enterprise-uninstaller -pdy
           /bin/rm -rf puppet-enterprise-*
 REINSTALL
-        end
 
         full_script = <<OEF
         #!/bin/bash
