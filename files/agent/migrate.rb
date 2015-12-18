@@ -76,6 +76,24 @@ OEF
         reply[:msg] = "Migration was triggered, and mcollective will uninstall now. Go look for your cert at https://#{to_fqdn}/#/node_groups/inventory/nodes/certificates"
       end
 
+      activate_when do
+        #deactivate if any puppet master services exist
+        if (File.exists?("/etc/init.d/pe-puppetserver") ||
+            File.exists?("/etc/init.d/pe-httpd") ||
+            File.exists?("/etc/init.d/pe-console-services") ||
+            File.exists?("/etc/init.d/pe-httpd") ||
+            File.exists?("/etc/init.d/pe-mcollective") ||
+            File.exists?("/etc/init.d/pe-memcached") ||
+            File.exists?("/etc/init.d/pe-postgresql") ||
+            File.exists?("/init.d/pe-puppet-dashboard-workers") ||
+            File.exists?("/etc/init.d/pe-puppetdb") ||
+            File.exists?("/etc/init.d/pe-puppetserver") ) then
+            return false
+        else
+          return true
+        end
+
+      end
     end
   end
 end
