@@ -6,8 +6,8 @@ module MCollective
       # require 'logger'
       # require 'fileutils'
       #
-      $working_dir = '/var/log'
-      $log_file = "#{working_dir}/mcollective-migrator-migrate.log"
+      # $working_dir = '/var/log'
+      # $log_file = "#{working_dir}/var/log/mcollective-migrator-migrate.log"
       #
       # FileUtils.mkdir_p $working_dir
       #
@@ -27,14 +27,15 @@ module MCollective
         run_migration(to_fqdn, to_ip, false)
       end
 
-      private
-
       def log(msg)
         # $log.info(msg)
         # Log.info(msg)
-        `echo 'msg >> #{$log_file}'`
-      end
 
+        logfile='/var/log/mcollective-migrator.log'
+        `/bin/touch #{logfile}`
+
+        `/bin/echo '#{msg}' >> #{logfile}`
+      end
 
       def run_migration(to_fqdn, to_ip, reinstall_from_new_master=false)
 
