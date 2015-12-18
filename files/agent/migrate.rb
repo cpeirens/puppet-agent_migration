@@ -38,48 +38,40 @@ module MCollective
       end
 
       def run_migration(to_fqdn, to_ip, reinstall_from_new_master=false)
+        reinstall_script=''
 
-        commands = []
-        log("Reinstalling puppet from a new master: #{to_fqdn}") if reinstall_from_new_master
-        log("This node is moving to a new master: #{to_fqdn}") unless reinstall_from_new_master
-
-        commands << "[ -f /etc/init.d/pe-puppet ] && puppet resource service pe-puppet ensure=stopped"
-        commands << "[ -f /etc/init.d/puppet ] &&  puppet resource service puppet ensure=stopped"
-        commands << "sed -i '/puppet/c\\#{to_ip} puppet #{to_fqdn}' /etc/hosts"
         if reinstall_from_new_master then
-          commands << "/usr/bin/wget --no-check-certificate https://prd-artifactory.sjrb.ad:8443/artifactory/shaw-private-core-devops-ext-release/com/puppetlabs/puppet-enterprise/2015.2.3/puppet-enterprise-2015.2.3-el-6-x86_64.tar.gz"
-          commands << "/bin/tar -xvf puppet-enterprise-2015.2.3-el-6-x86_64.tar.gz"
-          commands << "/bin/bash puppet-enterprise-2015.2.3-el-6-x86_64/puppet-enterprise-uninstaller -pdy"
-          commands << "/bin/rm -rf puppet-enterprise-*"
+          reinstall_script = <<REINSTALL
+          /usr/bin/wget --no-check-certificate https://prd-artifactory.sjrb.ad:8443/artifactory/shaw-private-core-devops-ext-release/com/puppetlabs/puppet-enterprise/2015.2.3/puppet-enterprise-2015.2.3-el-6-x86_64.tar.gz
+          /bin/tar -xvf puppet-enterprise-2015.2.3-el-6-x86_64.tar.gz
+          /bin/bash puppet-enterprise-2015.2.3-el-6-x86_64/puppet-enterprise-uninstaller -pdy
+          /bin/rm -rf puppet-enterprise-*
+REINSTALL
         end
-        commands << "/usr/bin/curl -o install_puppet.sh -k https://devcorepptl918.matrix.sjrb.ad:8140/packages/current/install.bash"
-        commands << "/bin/chmod +x install_puppet.sh"
-        commands << "/bin/bash install_puppet.sh"
-        commands << "/bin/rm -rf /etc/yum.repos.d/pe_repo.repo"
-        commands << "/bin/rm -rf install_puppet.sh"
-        commands << "[ -f /etc/init.d/pe-puppet ] && puppet resource service pe-puppet ensure=running"
-        commands << "[ -f /etc/init.d/puppet ] &&  puppet resource service puppet ensure=running"
 
-        out = ""
-        err = ""
-        success=true
-        commands.each { |cmd|
-          #reply with the last status - presumably if an error occurs.  this is overwritten at the end if successful
-          log("about to execute command: #{cmd}")
-          status = run(cmd, :stdout => out, :stderr => err, :cwd => "/tmp", :chomp => true)
-          reply[:msg] = "stdout: \r\n #{out}  \r\n stderr: \r\n #{err}"
-          # status = `#{cmd}`
-          log("Command status: --> #{status} <-- for: #{cmd}")
-          log("++++ stdout for: CMD: #{cmd}  ")
-          log(out)
-          log("---- end command #{cmd}")
-          log("++++ stderr for: CMD: #{cmd} ")
-          log(out)
-          log("---- end command #{cmd}")
-          reply.fail! "Migration failed running command: #{cmd} with error: #{err} Please intervene manually." unless status
-          success=false unless status
-        }
-        reply[:msg] = "Migration successful"
+        full_script = <<OEF
+        #!/bin/bash
+        set -x
+        exec 2> >(logger)
+        [ -f /etc/init.d/pe-puppet ] && puppet resource service pe-puppet ensure=stopped
+        [ -f /etc/init.d/puppet ] &&  puppet resource service puppet ensure=stopped
+        sed -i '/puppet/c\\#{to_ip} puppet #{to_fqdn}' /etc/hosts
+        #{reinstall_script}
+        /usr/bin/curl -o install_puppet.sh -k https://devcorepptl918.matrix.sjrb.ad:8140/packages/current/install.bash
+        /bin/chmod +x install_puppet.sh
+        /bin/bash install_puppet.sh
+        /bin/rm -rf /etc/yum.repos.d/pe_repo.repo
+        /bin/rm -rf install_puppet.sh
+        [ -f /etc/init.d/pe-puppet ] && puppet resource service pe-puppet ensure=running
+        [ -f /etc/init.d/puppet ] &&  puppet resource service puppet ensure=running
+OEF
+
+        reinstall_file='/tmp/reinstall_puppet_from_new_master.sh'
+        File.write(reinstall_file, full_script)
+
+        reply[:msg] = run("nohup /bin/bash #{reinstall_file} &", :stdout => :out, :stderr => :err, :cwd => "/tmp")
+
+        reply[:msg] = "Migration was triggered, and mcollective will uninstall now. Go look for your cert at https://#{to_fqdn}/#/node_groups/inventory/nodes/certificates"
       end
 
     end
