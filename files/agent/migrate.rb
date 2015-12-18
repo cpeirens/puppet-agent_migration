@@ -64,21 +64,22 @@ module MCollective
         err = ""
         success=true
         commands.each { |cmd|
-          # status = run(cmd, :stdout => out, :stderr => err, :cwd => "/tmp", :chomp => true)
+          #reply with the last status - presumably if an error occurs.  this is overwritten at the end if successful
           log("about to execute command: #{cmd}")
-          status = `#{cmd}`
+          status = run(cmd, :stdout => out, :stderr => err, :cwd => "/tmp", :chomp => true)
+          reply[:msg] = "stdout: \r\n #{out}  \r\n stderr: \r\n #{err}"
+          # status = `#{cmd}`
           log("Command status: --> #{status} <-- for: #{cmd}")
-          # log("++++ stdout for: CMD: #{cmd}  ")
-          # log(out)
-          # log("---- end command #{cmd}")
-          # log("++++ stderr for: CMD: #{cmd} ")
-          # log(out)
-          # log("---- end command #{cmd}")
+          log("++++ stdout for: CMD: #{cmd}  ")
+          log(out)
+          log("---- end command #{cmd}")
+          log("++++ stderr for: CMD: #{cmd} ")
+          log(out)
+          log("---- end command #{cmd}")
           reply.fail! "Migration failed running command: #{cmd} with error: #{err} Please intervene manually." unless status
           success=false unless status
         }
-
-        reply[:status] = "Did migration succeed:  #{result}"
+        reply[:msg] = "Migration successful"
       end
 
     end
