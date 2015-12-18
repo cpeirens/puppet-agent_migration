@@ -18,13 +18,13 @@ module MCollective
       action 'agent_from_3_to_4' do
         to_fqdn = request[:to_fqdn]
         to_ip = request[:to_ip]
-        run_migration(to_fqdn, to_ip, true)
+        run_reinstall_migration(to_fqdn, to_ip)
       end
 
       action 'agent' do
         to_fqdn = request[:to_fqdn]
         to_ip = request[:to_ip]
-        run_migration(to_fqdn, to_ip, false)
+        run_migration(to_fqdn, to_ip)
       end
 
       def log(msg)
@@ -37,7 +37,11 @@ module MCollective
         `/bin/echo '#{msg}' >> #{logfile}`
       end
 
-      def run_migration(to_fqdn, to_ip, reinstall_from_new_master=false)
+      def run_migration(to_fqdn, to_ip)
+        reply[:msg] = "not implemented yet. This will be used to migrate between masters of the same version."
+      end
+
+      def run_reinstall_migration(to_fqdn, to_ip)
         reinstall_script=''
 
         if reinstall_from_new_master then
