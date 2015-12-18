@@ -65,13 +65,15 @@ module MCollective
         success=true
         commands.each { |cmd|
           # status = run(cmd, :stdout => out, :stderr => err, :cwd => "/tmp", :chomp => true)
+          log("about to execute command: #{cmd}")
           status = `#{cmd}`
-          log("++++ stdout for: CMD: #{cmd}  ")
-          log(out)
-          log("---- end command #{cmd}")
-          log("++++ stderr for: CMD: #{cmd} ")
-          log(out)
-          log("---- end command #{cmd}")
+          log("Command status: --> #{status} <-- for: #{cmd}")
+          # log("++++ stdout for: CMD: #{cmd}  ")
+          # log(out)
+          # log("---- end command #{cmd}")
+          # log("++++ stderr for: CMD: #{cmd} ")
+          # log(out)
+          # log("---- end command #{cmd}")
           reply.fail! "Migration failed running command: #{cmd} with error: #{err} Please intervene manually." unless status
           success=false unless status
         }
