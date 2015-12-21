@@ -27,6 +27,10 @@ module MCollective
         run_migration(to_fqdn, to_ip)
       end
 
+      action 'test_activation' do
+        reply[:fqdn] = `facter fqdn`
+      end
+
       def log(msg)
         # $log.info(msg)
         # Log.info(msg)
@@ -75,6 +79,8 @@ OEF
 
         reply[:msg] = "Migration was triggered, and mcollective will uninstall now. Go look for your cert at https://#{to_fqdn}/#/node_groups/inventory/nodes/certificates"
       end
+
+
 
       activate_when do
         #deactivate if any puppet master services exist

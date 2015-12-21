@@ -56,3 +56,11 @@ action "agent", :description => "Leaves puppet version, changes server and /etc/
         :display_as  => "errors or messages from client",
         :default     => "unknown"
 end
+
+
+
+action "test_activation", :description => "Assists in determining which nodes are activated - giving more insight than just a filter" do
+  output :fqdn,
+        :description => "returns the fqdn if activated",
+        :display_as  => "activated fqdn:"
+end
