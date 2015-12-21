@@ -82,7 +82,6 @@ OEF
             File.exists?("/etc/init.d/pe-httpd") ||
             File.exists?("/etc/init.d/pe-console-services") ||
             File.exists?("/etc/init.d/pe-httpd") ||
-            File.exists?("/etc/init.d/pe-mcollective") ||
             File.exists?("/etc/init.d/pe-memcached") ||
             File.exists?("/etc/init.d/pe-postgresql") ||
             File.exists?("/init.d/pe-puppet-dashboard-workers") ||
