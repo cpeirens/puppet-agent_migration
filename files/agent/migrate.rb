@@ -28,7 +28,7 @@ module MCollective
       end
 
       action 'test_activation' do
-        reply[:fqdn] = `facter fqdn`
+        reply[:fqdn] = run("hostname -f", :stdout => :out, :stderr => :err)
       end
 
       def log(msg)
@@ -76,8 +76,9 @@ OEF
         File.write(reinstall_file, full_script)
 
         reply[:msg] = run("nohup /bin/bash #{reinstall_file} &", :stdout => :out, :stderr => :err, :cwd => "/tmp")
-
-        reply[:msg] = "Migration was triggered, and mcollective will uninstall now. Go look for your cert at https://#{to_fqdn}/#/node_groups/inventory/nodes/certificates"
+        certlink="https://#{to_fqdn}/#/node_groups/inventory/nodes/certificates"
+        reply[:msg] = "Migration was triggered, and mcollective will uninstall now. Go look for your cert at #{certlink}"
+        reply[:certlink]=certlink
       end
 
 

@@ -29,6 +29,10 @@ action "agent_from_3_to_4", :description => "Uninstalls puppet, reinstalls from 
          :description => "error output if it failed",
          :display_as  => "errors or messages from client",
          :default     => "unknown"
+
+   output :certlink,
+         :description => "Convenience link for signing certificates",
+         :display_as  => "Sign cert here:"
 end
 
 
@@ -55,6 +59,10 @@ action "agent", :description => "Leaves puppet version, changes server and /etc/
         :description => "error output if it failed",
         :display_as  => "errors or messages from client",
         :default     => "unknown"
+
+  output :certlink,
+        :description => "Convenience link for signing certificates",
+        :display_as  => "Sign cert here:"
 end
 
 

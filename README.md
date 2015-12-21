@@ -10,6 +10,19 @@
 
 To follow that process, read through the warnings and command help in the Usage section below.
 
+
+## Commands Available
+* `agent_from_3_to_4`
+    * this command is asynchronous
+    * it uninstalls puppet, and curls the version of puppet from the new master.  It is **important** to test one node at a time, and do this in a controlled manner, as if your node fails, you will have to intervene manually.
+* `agent` ##TODO  IMPLEMENT
+    * is synchronous
+    * migrates a puppet 4 agent to another puppet 4 agent.
+* `test_activation`
+    * `mco find <filter>` is useful to test a query, but rpc agents can still refuse to activate.
+    * if this agent isn't active on a node, this command will tell you.
+    * use this in conjunction with your mcollective node filter for a definitive test before running `mco migrate agent`
+
 ## Usage
 
 Include this module on all nodes.
@@ -86,7 +99,10 @@ If it fails, you will have to log into the machine you tried to migrate.  In oth
 
 As always with mcollective, **first test your node filter**.  You probably don't want to run this command against every agent!
 
-This command: `mco find -I /hostname_regex/` is one example of how to test a filter.
+This command: `mco migrate test_activation -I /hostname_regex/` will tell you what nodes would run on an activate command.
+* if a node doesn't appear in the list and you expect it to,  the plugin may not be deployed.
+    * ensure the module is included in this nodes profile.
+    * ensure puppet has run to place the plugin on the node.
 
 *Note: these commands will filter out the puppet master itself, as migrating the masters agent to another master would be bad.   Therefore, when testing your filter - you can ignore the puppet master node if it shows up.*
 
@@ -95,11 +111,3 @@ Take the filter above (`-I /hostname_regex/`) and use it in running the migratio
 `mco rpc migrate agent_from_3_to_4 to_fqdn=devcorepptl918.matrix.sjrb.ad to_ip=10.15.185.90  -I /hostname_regex/ -v`
 
 Be sure to add the -v to get verbose results.
-
-### Commands
-* `agent_from_3_to_4`
-    * this command is asynchronous
-    * it uninstalls puppet, and curls the version of puppet from the new master.  It is **important** to test one node at a time, and do this in a controlled manner, as if your node fails, you will have to intervene manually.
-* `agent` ##TODO  IMPLEMENT
-    * is synchronous
-    * migrates a puppet 4 agent to another puppet 4 agent.
