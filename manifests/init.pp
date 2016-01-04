@@ -4,7 +4,10 @@ class agent_migration (
   # $plugin_basedir = $puppet_enterprise::params::mco_plugin_basedir
   # $mco_etc        = $puppet_enterprise::params::mco_etc
   $mco_etc            = '/etc/puppetlabs/mcollective'
-  $mco_plugin_basedir = '/opt/puppet/libexec/mcollective/mcollective'
+  $mco_plugin_basedir = $aio_agent_build ? {
+    undef => '/opt/puppet/libexec/mcollective/mcollective', # <= puppet3
+    default => '/opt/puppetlabs/mcollective/plugins/mcollective', #puppet4
+  }
 
   file {"${mco_plugin_basedir}/agent/migrate.ddl":
     ensure => file,
