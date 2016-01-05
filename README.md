@@ -12,7 +12,9 @@ To follow that process, read through the warnings and command help in the Usage 
 
 
 ## Commands Available
+
 Supplementary command documentation to that on the `plugin doc` command documentation.
+
 * `agent_from_3_to_4`
     * use this if you want to upgrade an agent node from a puppet 3 master to a puppet 4 master.
     * this command is asynchronous
