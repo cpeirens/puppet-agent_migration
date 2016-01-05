@@ -12,9 +12,11 @@ To follow that process, read through the warnings and command help in the Usage 
 
 
 ## Commands Available
+Supplementary command documentation to that on the `plugin doc` command documentation.
 * `agent_from_3_to_4`
+    * use this if you want to upgrade an agent node from a puppet 3 master to a puppet 4 master.
     * this command is asynchronous
-    * it uninstalls puppet, and curls the version of puppet from the new master.  It is **important** to test one node at a time, and do this in a controlled manner, as if your node fails, you will have to intervene manually.
+    * this command uninstalls puppet, and curls the version of puppet from the new master.  It is **important** to test one node at a time, and do this in a controlled manner, as if your node fails, you will have to intervene manually.
 * `agent` ##TODO  IMPLEMENT
     * is synchronous
     * migrates a puppet 4 agent to another puppet 4 agent.
@@ -90,16 +92,18 @@ The subcommand `agent_from_3_to_4` will uninstall puppet and reinstall puppet fr
 
 * the new master isn't available
 * there is an existing cert on the new master.
-    * to clean this: run `puppet node clean <client_cert_here>` on the "to be" master.
+    * to ensure there isn't: run `puppet node clean <client_cert_name_here>` on the new master.
 
-If it fails, you will have to log into the machine you tried to migrate.  In other words, be careful.
+If the migration fails, you will have to log into the machine you tried to migrate.  In other words, be careful.
+
+As the `agent_from_3_to_4` command is asynchronous, it is helpful to know the reinstall typically takes 2-3 minutes to complete.
 
 
 ### Executing commands
 
 As always with mcollective, **first test your node filter**.  You probably don't want to run this command against every agent!
 
-This command: `mco migrate test_activation -I /hostname_regex/` will tell you what nodes would run on an activate command.
+This command: `mco rpc migrate test_activation -I /hostname_regex/` will tell you what nodes would run on an activate command.
 * if a node doesn't appear in the list and you expect it to,  the plugin may not be deployed.
     * ensure the module is included in this nodes profile.
     * ensure puppet has run to place the plugin on the node.
@@ -111,3 +115,9 @@ Take the filter above (`-I /hostname_regex/`) and use it in running the migratio
 `mco rpc migrate agent_from_3_to_4 to_fqdn=devcorepptl918.matrix.sjrb.ad to_ip=10.15.185.90  -I /hostname_regex/ -v`
 
 Be sure to add the -v to get verbose results.
+
+#### Summary of commands you may wish to use
+If your new master is devcorepptl918.matrix.sjrb.ad, at ip 10.15.185.90, and you are migrating a vm called vm_001:
+
+1. `sudo runuser -l peadmin -c 'mco rpc migrate test_activation -I /vm_001/'`
+2. `sudo runuser -l peadmin -c 'mco rpc migrate agent_from_3_to_4 to_fqdn=devcorepptl918.matrix.sjrb.ad to_ip=10.15.185.90  -I /vm_001/ -v'`
