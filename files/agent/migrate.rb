@@ -64,7 +64,7 @@ REINSTALL
         [ -f /etc/init.d/puppet ] &&  puppet resource service puppet ensure=stopped
         sed -i '/puppet/c\\#{to_ip} puppet #{to_fqdn}' /etc/hosts
         #{reinstall_script}
-        /usr/bin/curl -o install_puppet.sh -k https://devcorepptl918.matrix.sjrb.ad:8140/packages/current/install.bash
+        /usr/bin/curl -o install_puppet.sh -k https://#{to_fqdn}:8140/packages/current/install.bash
         /bin/chmod +x install_puppet.sh
         /bin/bash install_puppet.sh
         /bin/rm -rf /etc/yum.repos.d/pe_repo.repo
