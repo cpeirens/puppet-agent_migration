@@ -1,0 +1,27 @@
+{
+  "name": "agent_migration",
+  "version": "0.3.0",
+  "author": "Brett Swift",
+  "summary": "Migrates an agent from one puppet master to another",
+  "license": "Apache 2.0",
+  "source": "ssh://git@stash.sjrb.ad:7999/codo/mcollective-agent_migration.git",
+  "project_page": "https://stash.sjrb.ad:7443/projects/CODO/repos/mcollective-agent_migration/browse",
+  "issues_url": "",
+  "description": "Migrates an agent from one puppet master to another, and optionally reinstalls puppet.",
+  "operatingsystem_support": [
+    {
+      "operatingsystem": "CentOS",
+      "operatingsystemrelease": [
+        "6"
+      ]
+    },
+    {
+      "operatingsystem": "RedHat",
+      "operatingsystemrelease": [
+        "6"
+      ]
+    },
+  ],
+  "dependencies": [
+  ]
+}
