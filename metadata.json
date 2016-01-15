@@ -1,6 +1,6 @@
 {
   "name": "agent_migration",
-  "version": "0.3.0",
+  "version": "0.0.4",
   "author": "Brett Swift",
   "summary": "Migrates an agent from one puppet master to another",
   "license": "Apache 2.0",
