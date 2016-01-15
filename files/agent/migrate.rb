@@ -88,12 +88,10 @@ OEF
         if (File.exists?("/etc/init.d/pe-puppetserver") ||
             File.exists?("/etc/init.d/pe-httpd") ||
             File.exists?("/etc/init.d/pe-console-services") ||
-            File.exists?("/etc/init.d/pe-httpd") ||
             File.exists?("/etc/init.d/pe-memcached") ||
             File.exists?("/etc/init.d/pe-postgresql") ||
-            File.exists?("/init.d/pe-puppet-dashboard-workers") ||
-            File.exists?("/etc/init.d/pe-puppetdb") ||
-            File.exists?("/etc/init.d/pe-puppetserver") ) then
+            File.exists?("/etc/init.d/pe-puppet-dashboard-workers") ||
+            File.exists?("/etc/init.d/pe-puppetdb")) then
             return false
         else
           return true
