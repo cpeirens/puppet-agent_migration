@@ -36,7 +36,7 @@ action "agent_from_3_to_4", :description => "Uninstalls puppet, reinstalls from 
 end
 
 
-action "agent", :description => "Leaves puppet version, changes server and /etc/hosts for new master" do
+action "puppet_agent", :description => "Migration of Puppet 4 agents between masters" do
   input :to_fqdn,
         :prompt      => "new master fqdn",
         :description => "Master FQDN to direct the agent to",
@@ -54,11 +54,27 @@ action "agent", :description => "Leaves puppet version, changes server and /etc/
         :maxlength   => 1024,
         :timeout     => 120,
         :type        => :string
+        #create reply[:out] and reply[:error] entries in the hash.
 
   output :msg,
+        :description => "Message with result of the command",
+        :display_as  => "Message: ",
+        :default     => "unknown"
+
+  output :command_list,
+        :description => "An Array of commands run and their exit codes",
+        :display_as  => "Commands: ",
+        :default     => ""
+
+  output :error,
         :description => "error output if it failed",
         :display_as  => "errors or messages from client",
         :default     => "unknown"
+
+  output :exitstatus,
+        :description => "status of the last command run during migration",
+        :display_as  => "Exit Status",
+        :default     => "-1"
 
   output :certlink,
         :description => "Convenience link for signing certificates",

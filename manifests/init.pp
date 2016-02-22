@@ -10,7 +10,8 @@ class agent_migration (
   }
 
   # only do this on PE. OSS could be functional but more work is required.
-  if defined(Class['puppet_enterprise']) {
+  # the is_pe fact seems broken on 2015.2, this one should be sufficient
+  if ($::pe_concat_basedir) {
     file {"${mco_plugin_basedir}/agent/migrate.ddl":
       ensure => file,
       source => "puppet:///modules/${module_name}/agent/migrate.ddl",

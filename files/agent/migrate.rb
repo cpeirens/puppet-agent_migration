@@ -1,19 +1,7 @@
 module MCollective
   module Agent
     class Migrate<RPC::Agent
-      # require 'date'
-      #
-      # require 'logger'
-      # require 'fileutils'
-      #
-      # $working_dir = '/var/log'
-      # $log_file = "#{working_dir}/var/log/mcollective-migrator-migrate.log"
-      #
-      # FileUtils.mkdir_p $working_dir
-      #
-      # file = File.open($log_file, File::WRONLY | File::APPEND | File::CREAT)
-      # $log = Logger.new(file)
-      # $log.level = Logger::DEBUG
+      require 'date'
 
       action 'agent_from_3_to_4' do
         to_fqdn = request[:to_fqdn]
@@ -21,7 +9,7 @@ module MCollective
         run_reinstall_migration(to_fqdn, to_ip)
       end
 
-      action 'agent' do
+      action 'puppet_agent' do
         to_fqdn = request[:to_fqdn]
         to_ip = request[:to_ip]
         run_migration(to_fqdn, to_ip)
@@ -31,24 +19,27 @@ module MCollective
         reply[:fqdn] = run("hostname -f", :stdout => :out, :stderr => :err)
       end
 
-      def log(msg)
-        # $log.info(msg)
-        # Log.info(msg)
-
-        logfile='/var/log/mcollective-migrator.log'
-        `/bin/touch #{logfile}`
-
-        `/bin/echo '#{msg}' >> #{logfile}`
-      end
-
       def run_migration(to_fqdn, to_ip)
-        reply[:msg] = "not implemented yet. This will be used to migrate between masters of the same version."
+        update_host_entry_cmd="sed -i '/puppet/c#{to_ip} puppet #{to_fqdn}' /etc/hosts"
+        # update_puppet_conf_cmd="puppet resource ini_setting 'server' ensure=present path='/etc/puppetlabs/puppet/puppet.conf' section='main' setting='server' value='#{to_fqdn}'" #hmm, doesn't work?
+        update_puppet_conf_cmd="sed -i '/server/cserver = #{to_fqdn}' /etc/puppetlabs/puppet/puppet.conf"
+        nuke_ssl_dir_cmd="rm -rf /etc/puppetlabs/puppet/ssl"
+        # nuke_ssl_dir_cmd="puppet resource file '/etc/puppetlabs/puppet/ssl' ensure=absent force=true" #hmm, doesn't work?
+        restart_agent_cmd='/etc/init.d/puppet restart'
+        reply[:exitstatus] = "initialized"
+        reply[:command_list] = []
+        run_command(update_host_entry_cmd)
+        run_command(update_puppet_conf_cmd)
+        run_command(nuke_ssl_dir_cmd)
+        run_command(restart_agent_cmd)
+
+        certlink="https://#{to_fqdn}/#/node_groups/inventory/nodes/certificates"
+        reply[:msg] = "Migration complete. Go look for your cert at #{certlink}"
+        reply[:certlink]=certlink
       end
 
       def run_reinstall_migration(to_fqdn, to_ip)
         reinstall_script=''
-
-
           reinstall_script = <<REINSTALL
           /usr/bin/wget --no-check-certificate https://prd-artifactory.sjrb.ad:8443/artifactory/shaw-private-core-devops-ext-release/com/puppetlabs/puppet-enterprise/2015.2.3/puppet-enterprise-2015.2.3-el-6-x86_64.tar.gz
           /bin/tar -xvf puppet-enterprise-2015.2.3-el-6-x86_64.tar.gz
@@ -81,10 +72,9 @@ OEF
         reply[:certlink]=certlink
       end
 
-
-
       activate_when do
-        #deactivate if any puppet master services exist
+        #deactivate if any puppet master services exist. Migrating a master would be bad.
+        #TODO: use a fact?
         if (File.exists?("/etc/init.d/pe-puppetserver") ||
             File.exists?("/etc/init.d/pe-httpd") ||
             File.exists?("/etc/init.d/pe-console-services") ||
@@ -96,7 +86,21 @@ OEF
         else
           return true
         end
+      end
 
+      private
+
+      def run_command(cmd)
+        Log.info("Executing:   #{cmd}")
+        #create reply[:out] and reply[:error] entries in the hash.
+        status = run(cmd, :stdout => :out, :stderr => :error)
+        reply[:exitstatus] = "Success" if status
+        reply[:command_list] << "Command: #{cmd} exited with: #{status}"
+
+        Log.info("Status is:   #{reply[:exitstatus]}")
+        Log.info("STDOUT:")
+        Log.info(reply[:out])
+        Log.info("Execution Success for: #{cmd}")
       end
     end
   end
