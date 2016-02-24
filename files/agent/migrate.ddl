@@ -1,8 +1,8 @@
 metadata :name        => "migrate",
 :description          => "Moves an agent to a new master",
 :author               => "Brett Swift",
-:license              => "MIT",
-:version              => "0.0.3",
+:license              => "Apache-2.0",
+:version              => "0.0.4",
 :url                  => "http://puppetlabs.com",
 :timeout              => 120
 
@@ -81,7 +81,7 @@ action "puppet_agent", :description => "Migration of Puppet 4 agents between mas
 
   summarize do
        aggregate summary(:exitstatus)
-   end
+  end
 end
 
 
