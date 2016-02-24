@@ -54,7 +54,6 @@ action "puppet_agent", :description => "Migration of Puppet 4 agents between mas
         :maxlength   => 1024,
         :timeout     => 120,
         :type        => :string
-        #create reply[:out] and reply[:error] entries in the hash.
 
   output :msg,
         :description => "Message with result of the command",
@@ -79,6 +78,10 @@ action "puppet_agent", :description => "Migration of Puppet 4 agents between mas
   output :certlink,
         :description => "Convenience link for signing certificates",
         :display_as  => "Sign cert here:"
+
+  summarize do
+       aggregate summary(:exitstatus)
+   end
 end
 
 

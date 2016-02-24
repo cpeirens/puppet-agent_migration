@@ -24,7 +24,7 @@ module MCollective
         # update_puppet_conf_cmd="puppet resource ini_setting 'server' ensure=present path='/etc/puppetlabs/puppet/puppet.conf' section='main' setting='server' value='#{to_fqdn}'" #hmm, doesn't work?
         update_puppet_conf_cmd="sed -i '/server/cserver = #{to_fqdn}' /etc/puppetlabs/puppet/puppet.conf"
         nuke_ssl_dir_cmd="rm -rf /etc/puppetlabs/puppet/ssl"
-        # nuke_ssl_dir_cmd="puppet resource file '/etc/puppetlabs/puppet/ssl' ensure=absent force=true" #hmm, doesn't work?
+        # nuke_ssl_dir_cmd="puppet resource file '/etc/puppetlabs/puppet/ssl' ensure=absent force=true"   #hmm, doesn't work?
         restart_agent_cmd='/etc/init.d/puppet restart'
         reply[:exitstatus] = "initialized"
         reply[:command_list] = []

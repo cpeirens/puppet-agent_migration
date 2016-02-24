@@ -5,7 +5,7 @@ class agent_migration (
   # $mco_etc        = $puppet_enterprise::params::mco_etc
   $mco_etc            = '/etc/puppetlabs/mcollective'
   $mco_plugin_basedir = $::puppetversion ? {
-      /^3/   => '/opt/puppet/libexec/mcollective/mcollective', # <= puppet3
+      /^3/   => '/opt/puppet/libexec/mcollective/mcollective', # <= puppet3 not functional yet.
       default => '/opt/puppetlabs/mcollective/plugins/mcollective', #puppet4
   }
 
@@ -21,9 +21,14 @@ class agent_migration (
       ensure => file,
       source => "puppet:///modules/${module_name}/agent/migrate.rb",
     }
+
+    file {"${mco_plugin_basedir}/application/migrate.rb":
+      ensure => file,
+      source => "puppet:///modules/${module_name}/application/migrate.rb",
+    }
   }
 
-  if(defined(Service['pe-mcollective'])){
-    Class[$title] ~> Service['pe-mcollective']
+  if(defined(Service['mcollective'])){
+    Class[$title] ~> Service['mcollective']
   }
 }
