@@ -1,6 +1,39 @@
-# MCollective Agent For Migrating Puppet Agents to a New Puppet Master
+# agent-migration
 
-## High level process to use this module
+#### Table of Contents
+
+1. [Overview](#overview)
+2. [Description](#module-description)
+3. [Setup](#setup)
+* [What agent-migration affects](#what-[agent-migration]-affects)
+* [Setup requirements](#setup-requirements)
+* [Beginning with this module](#beginning-with-agent-migration)
+4. [Usage](#usage)
+5. [Reference](#reference)
+5. [Limitations - OS compatibility, etc.](#limitations)
+6. [Development - Guide for contributing to the module](#development)
+
+## Overview
+
+`agent-migration` helps in migrating puppet agents to a new Puppet master
+
+## Description
+
+This module contains puppet manifests to install the mcollective agent files.
+It contains a simple rpc agent and an mcollective subcommand (ie: application)
+## Setup
+
+`include agent-migration`
+
+### Setup requirements
+
+* Puppet Enterprise
+
+## Beginning with this module
+
+### Usage
+
+#### High level process to use this module
 * Ensure the "to be" master does not have a cert signed for the nodes you are migrating.
 * Test your mcollective node filters
 * Test one run of the `migrate` command on a single node
@@ -11,7 +44,7 @@
 To follow that process, read through the warnings and command help in the Usage section below.
 
 
-## Commands Available
+#### RPC Commands Available
 
 Supplementary command documentation to that on the `plugin doc` command documentation.
 
@@ -19,20 +52,23 @@ Supplementary command documentation to that on the `plugin doc` command document
     * use this if you want to upgrade an agent node from a puppet 3 master to a puppet 4 master.
     * this command is asynchronous
     * this command uninstalls puppet, and curls the version of puppet from the new master.  It is **important** to test one node at a time, and do this in a controlled manner, as if your node fails, you will have to intervene manually.
-* `agent` ##TODO  IMPLEMENT
-    * is synchronous
+    * Example: `mco rpc migrate agent_from_3_to_4 to_fqdn=newmaster.domain.com to_ip=10.1.1.10 -v -I /filter/`
+* `puppet_agent`
+    * once you are on puppet 4, you can use this command.
     * migrates a puppet 4 agent to another puppet 4 agent.
+    * Example: `mco rpc migrate puppet_agent to_fqdn=newmaster.domain.com to_ip=10.1.1.10 -v -I /filter/`
 * `test_activation`
     * `mco find <filter>` is useful to test a query, but rpc agents can still refuse to activate.
     * if this agent isn't active on a node, this command will tell you.
-    * use this in conjunction with your mcollective node filter for a definitive test before running `mco migrate agent`
+    * use this in conjunction with your mcollective node filter for a definitive test before running * Example:  `mco rpc migrate test_activation -v -I /filter/`
 
-## Usage
+#### `migrate` mco subcommand
 
-Include this module on all nodes.
-`include agent_migration`
+`mco help migrate` will show you current usage documentation.
 
-Run it.
+This command **requires puppet 4** as it wraps around the `puppet_agent` rpc plugin.
+
+An example of how to run the migrate subcommand.
 `mco migrate agent <options>`
 
 ### Learn MCollective Basics
@@ -123,3 +159,22 @@ If your new master is devcorepptl918.matrix.sjrb.ad, at ip 10.15.185.90, and you
 
 1. `sudo runuser -l peadmin -c 'mco rpc migrate test_activation -I /vm_001/'`
 2. `sudo runuser -l peadmin -c 'mco rpc migrate agent_from_3_to_4 to_fqdn=devcorepptl918.matrix.sjrb.ad to_ip=10.15.185.90  -I /vm_001/ -v'`
+
+## Limitations
+
+* Puppet Enteprise
+* Tested On:
+    * RHEL 6.4
+    * CentOS 6.4
+* the `agent_from_3_to_4` currently has a hard coded url to a puppet tar. It won't work outside our firewall .. yet.
+    * TODO: allow injecting url for tarball to uninstall puppet 3.
+
+## Development
+
+Pull Requests are welcome.  Please rebase and squash before submitting, and use a feature branch.
+
+For more details: CONTRIBUTING.md.
+
+## Release Notes/Contributors/Etc
+
+See the `CHANGELOG`.
