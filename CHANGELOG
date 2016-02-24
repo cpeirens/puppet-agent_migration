@@ -4,6 +4,11 @@ CHANGELOG
 next
 ____
 
+
+0.0.5
+____
+
+## Notes
  - adding support for a simpler migration agent between puppet 4 masters.
  - added the `mco migrate` subcommand that wraps the `mco rpc migrate puppet_agent` plugin.
 

@@ -64,6 +64,8 @@ Supplementary command documentation to that on the `plugin doc` command document
 
 #### `migrate` mco subcommand
 
+*** This is the recommended way to use this mco agent ***
+
 `mco help migrate` will show you current usage documentation.
 
 This command **requires puppet 4** as it wraps around the `puppet_agent` rpc plugin.
