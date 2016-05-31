@@ -3,24 +3,38 @@ module MCollective
     class Migrate<RPC::Agent
       require 'date'
 
-      action 'agent_from_3_to_4' do
+      action 'puppet_reinstall' do
         to_fqdn = request[:to_fqdn]
-        to_ip = request[:to_ip]
-        run_reinstall_migration(to_fqdn, to_ip)
+        run_reinstall_migration(to_fqdn)
       end
 
       action 'puppet_agent' do
         to_fqdn = request[:to_fqdn]
-        to_ip = request[:to_ip]
-        run_migration(to_fqdn, to_ip)
+        run_migration(to_fqdn)
       end
 
       action 'test_activation' do
         reply[:fqdn] = run("hostname -f", :stdout => :out, :stderr => :err)
       end
 
-      def run_migration(to_fqdn, to_ip)
-        update_host_entry_cmd="sed -i '/puppet/c#{to_ip} puppet #{to_fqdn}' /etc/hosts"
+      def run_migration(to_fqdn)
+        kernel=run("facter kernel", :stdout => kernel)
+        case kernel
+        when "Linux"
+          run_migration_windows
+        when "Windows"
+          run_migration_linux
+        else
+          reply[:msg] = "kernel #{kernel} not supported"
+          exit
+        end
+      end
+
+      def run_migration_windows(to_fqdn)
+        reply[:msg] = "ah shucks.  you can't migrate yer windows yet der buddy"
+      end
+
+      def run_migration_linux(to_fqdn)
         # update_puppet_conf_cmd="puppet resource ini_setting 'server' ensure=present path='/etc/puppetlabs/puppet/puppet.conf' section='main' setting='server' value='#{to_fqdn}'" #hmm, doesn't work?
         update_puppet_conf_cmd="sed -i '/server/cserver = #{to_fqdn}' /etc/puppetlabs/puppet/puppet.conf"
         nuke_ssl_dir_cmd="rm -rf /etc/puppetlabs/puppet/ssl"
@@ -28,7 +42,6 @@ module MCollective
         restart_agent_cmd='/etc/init.d/puppet restart'
         reply[:exitstatus] = "initialized"
         reply[:command_list] = []
-        run_command(update_host_entry_cmd)
         run_command(update_puppet_conf_cmd)
         run_command(nuke_ssl_dir_cmd)
         run_command(restart_agent_cmd)
@@ -38,7 +51,7 @@ module MCollective
         reply[:certlink]=certlink
       end
 
-      def run_reinstall_migration(to_fqdn, to_ip)
+      def run_reinstall_migration(to_fqdn)
         reinstall_script=''
           reinstall_script = <<REINSTALL
           /usr/bin/wget --no-check-certificate https://prd-artifactory.sjrb.ad:8443/artifactory/shaw-private-core-devops-ext-release/com/puppetlabs/puppet-enterprise/2015.2.3/puppet-enterprise-2015.2.3-el-6-x86_64.tar.gz
@@ -51,9 +64,7 @@ REINSTALL
         #!/bin/bash
         set -x
         exec 2> >(logger)
-        [ -f /etc/init.d/pe-puppet ] && puppet resource service pe-puppet ensure=stopped
         [ -f /etc/init.d/puppet ] &&  puppet resource service puppet ensure=stopped
-        sed -i '/puppet/c\\#{to_ip} puppet #{to_fqdn}' /etc/hosts
         #{reinstall_script}
         /usr/bin/curl -o install_puppet.sh -k https://#{to_fqdn}:8140/packages/current/install.bash
         /bin/chmod +x install_puppet.sh

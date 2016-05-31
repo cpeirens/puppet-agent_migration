@@ -6,19 +6,10 @@ metadata :name        => "migrate",
 :url                  => "http://puppetlabs.com",
 :timeout              => 120
 
-action "agent_from_3_to_4", :description => "Uninstalls puppet, reinstalls from designated master curl script" do
+action "puppet_reinstall", :description => "Uninstalls puppet, reinstalls from designated master curl script" do
   input :to_fqdn,
         :prompt      => "new master fqdn",
         :description => "Master FQDN to direct the agent to",
-        :optional    => false,
-        :validation  => '.*',
-        :maxlength   => 1024,
-        :timeout     => 120,
-        :type        => :string
-
-  input :to_ip,
-        :prompt      => "new master ip",
-        :description => "Master IP Address to direct the agent to",
         :optional    => false,
         :validation  => '.*',
         :maxlength   => 1024,
@@ -40,15 +31,6 @@ action "puppet_agent", :description => "Migration of Puppet 4 agents between mas
   input :to_fqdn,
         :prompt      => "new master fqdn",
         :description => "Master FQDN to direct the agent to",
-        :optional    => false,
-        :validation  => '.*',
-        :maxlength   => 1024,
-        :timeout     => 120,
-        :type        => :string
-
-  input :to_ip,
-        :prompt      => "new master ip",
-        :description => "Master IP Address to direct the agent to",
         :optional    => false,
         :validation  => '.*',
         :maxlength   => 1024,

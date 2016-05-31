@@ -3,7 +3,8 @@ CHANGELOG
 
 next
 ____
-
+ - removed dependency on the `to_ip` option
+ - windows support
 
 0.0.5
 ____
