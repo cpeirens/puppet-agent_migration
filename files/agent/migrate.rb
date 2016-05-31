@@ -66,11 +66,12 @@ REINSTALL
         exec 2> >(logger)
         [ -f /etc/init.d/puppet ] &&  puppet resource service puppet ensure=stopped
         #{reinstall_script}
-        /usr/bin/curl -o install_puppet.sh -k https://#{to_fqdn}:8140/packages/current/install.bash
-        /bin/chmod +x install_puppet.sh
-        /bin/bash install_puppet.sh
+        /usr/bin/curl -o /tmp/install_puppet.sh -k https://#{to_fqdn}:8140/packages/current/install.bash
+        /bin/chmod +x /tmp/install_puppet.sh
+        /bin/bash /tmp/install_puppet.sh
         /bin/rm -rf /etc/yum.repos.d/pe_repo.repo
-        /bin/rm -rf install_puppet.sh
+        /bin/rm -rf /etc/yum.repos.d/pc_repo.repo
+        /bin/rm -rf /tmp/install_puppet.sh
         [ -f /etc/init.d/puppet ] &&  /usr/local/bin/puppet resource service puppet ensure=running
 OEF
 
