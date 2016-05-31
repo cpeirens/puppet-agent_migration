@@ -2,7 +2,7 @@ metadata :name        => "migrate",
 :description          => "Moves an agent to a new master",
 :author               => "Brett Swift",
 :license              => "Apache-2.0",
-:version              => "0.0.5",
+:version              => "0.1.0",
 :url                  => "http://puppetlabs.com",
 :timeout              => 120
 

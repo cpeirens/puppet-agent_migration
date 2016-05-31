@@ -20,9 +20,9 @@ module MCollective
       def run_migration(to_fqdn)
         kernel=run("facter kernel", :stdout => kernel)
         case kernel
-        when "Linux"
-          run_migration_windows
         when "Windows"
+          run_migration_windows
+        when "Linux"
           run_migration_linux
         else
           reply[:msg] = "kernel #{kernel} not supported"
