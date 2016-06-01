@@ -19,6 +19,8 @@ module MCollective
 
       def run_migration(to_fqdn)
         Log.info("Executing:   #{cmd}")
+        reply[:exitstatus] = "initialized"
+        reply[:command_list] = []
         kernel=run("facter kernel", :stdout => kernel)
         case kernel
         when "Windows"
@@ -46,8 +48,6 @@ module MCollective
         nuke_ssl_dir_cmd="rm -rf /etc/puppetlabs/puppet/ssl"
         # nuke_ssl_dir_cmd="puppet resource file '/etc/puppetlabs/puppet/ssl' ensure=absent force=true"   #hmm, doesn't work?
         restart_agent_cmd='/etc/init.d/puppet restart'
-        reply[:exitstatus] = "initialized"
-        reply[:command_list] = []
         run_command(update_puppet_conf_cmd)
         run_command(nuke_ssl_dir_cmd)
         run_command(restart_agent_cmd)
