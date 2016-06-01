@@ -31,7 +31,12 @@ module MCollective
       end
 
       def run_migration_windows(to_fqdn)
-        reply[:msg] = "ah shucks.  you can't migrate yer windows yet der buddy"
+        update_puppet_conf_and_nuke_ssl_cmd="powershell -file c:/windows/temp/migrate_to_new_master.ps1 -to_fqdn #{to_fqdn}"
+        run_command(update_puppet_conf_and_nuke_ssl_cmd)
+
+        certlink="https://#{to_fqdn}/#/node_groups/inventory/nodes/certificates"
+        reply[:msg] = "Migration complete. Go look for your cert at #{certlink}"
+        reply[:certlink]=certlink
       end
 
       def run_migration_linux(to_fqdn)
