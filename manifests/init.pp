@@ -24,6 +24,9 @@ class agent_migration (
     notice("This version of puppet is not supported")
   }
 
+  if $::kernel == 'Windows' {
+    include agent_migration::windows
+  }
 
   if(defined(Service['mcollective'])){
     Class[$title] ~> Service['mcollective']
