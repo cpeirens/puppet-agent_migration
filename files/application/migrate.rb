@@ -35,8 +35,10 @@ class MCollective::Application::Migrate<MCollective::Application
         printf("\n%-40s migration result: %s\n", sender, red(simpleresp[:data][:exitstatus]))
         puts "The migrate agent returned an error: #{simpleresp[:data][:error]}"
         puts "Commands ran with results:"
-        simpleresp[:data][:command_list].each do |cmd_result|
-          puts cmd_result
+        if(simpleresp[:data] && simpleresp[:data][:command_list])
+          simpleresp[:data][:command_list].each do |cmd_result|
+            puts cmd_result
+          end
         end
       else
         printf("\n%-40s migration result: %s\n", sender, red(simpleresp[:data][:exitstatus]))
