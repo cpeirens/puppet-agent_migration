@@ -18,12 +18,13 @@ module MCollective
       end
 
       def run_migration(to_fqdn)
+        Log.info("Executing:   #{cmd}")
         kernel=run("facter kernel", :stdout => kernel)
         case kernel
         when "Windows"
-          run_migration_windows
+          run_migration_windows(to_fqdn)
         when "Linux"
-          run_migration_linux
+          run_migration_linux(to_fqdn)
         else
           reply[:msg] = "kernel #{kernel} not supported"
           exit
